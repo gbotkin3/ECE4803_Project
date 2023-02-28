@@ -1,4 +1,4 @@
-# ECE4803_Project
+# ECE8803_Final_Project
 DRSS Severity Classification on OCT images
 
 ## Initial Setup
