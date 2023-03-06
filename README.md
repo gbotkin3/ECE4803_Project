@@ -7,7 +7,13 @@ Analyzing the performance of various supervised and unsupervised models on the s
 
 ## Initial Setup
 
-Add the unzipped PRIME_FULL folder to ./data_files
+Run the following commands to clone the repository
+
+```
+git clone https://github.com/gbotkin3/ECE8803_Final_Project.git
+```
+
+Add the PRIME_FULL folder from an unzipped OLIVES.zip to ./data_files
 
 ## Methodologies
 
@@ -25,3 +31,4 @@ Add the unzipped PRIME_FULL folder to ./data_files
 
   1.
   2.
+
