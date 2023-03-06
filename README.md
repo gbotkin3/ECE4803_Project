@@ -3,7 +3,7 @@ DRSS Severity Classification on OCT images
 
 # Abstract
 
-Analyzing the performance of various supervised and unsupervised models on the same dataset.
+By looking at the visulization of a set of data, is it possible to predict the performance of models relative to each other to enable reliably choosing the best performing model?
 
 ## Initial Setup
 
@@ -17,15 +17,10 @@ Add the PRIME_FULL folder from an unzipped OLIVES.zip to ./data_files
 
 ## Methodologies
 
-### Supervised
-
   1. Linear Regressions
-  2. Naive Bayes
-
-### Unsupervised
-
-  1. GMM
-  2. 
+  2. GMM
+  3. CNN
+  4. DNN
 
 ## Performance Metrics
 
