@@ -24,6 +24,7 @@ Add the PRIME_FULL folder from an unzipped OLIVES.zip to ./data_files
 
 ## Performance Metrics
 
-  1.
-  2.
+  1. Accuracy
+  2. AUROC Curve
+  3. Precesions / Recall / F1
 
