@@ -1,12 +1,12 @@
-#Init the Git Repo:
+# Init the Git Repo:
 ```
 git clone https://github.com/gbotkin3/ECE8803_Final_Project.git
 ```
-#Switching to a New Branch
+# Switching to a New Branch
 ```
 git checkout -b my-feature
 ```
-#Pushing all Changes
+# Pushing all Changes
 
 Perform from the top-level directory
 
@@ -16,7 +16,7 @@ git commit -m "Commit Message"
 git push
 ```
 
-#Reverting Changes
+# Reverting Changes
 
 ```
 git reset --hard
