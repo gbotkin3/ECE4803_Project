@@ -23,10 +23,10 @@ Add the PRIME_FULL folder from an unzipped OLIVES.zip to ./data_files
 
 ## Methodologies
 
-  1. KMM
+  1. KNN
+  2. Decision Tree
   2. GMM
-  3. CNN
-  4. DNN / Decision Tree?
+  4. CNN
 
 ## Performance Metrics
 
