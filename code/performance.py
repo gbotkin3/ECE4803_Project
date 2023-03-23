@@ -4,7 +4,16 @@ def check_performance(model_name, predictions, labels):
 
     print(model_name + 's Performance')
 
-    print("Accuracy: ", accuracy(predictions, labels), "\n")
+    accuracy_results = accuracy(predictions, labels)
+
+    print("Accuracy: ", accuracy_results, "\n")
+
+    results = open("../results/Models_Performance", "a")
+
+    results.write(model_name + "\n")
+    results.write("Accuracy: " + str(accuracy_results) + "\n")
+
+    results.close()
 
     return
 

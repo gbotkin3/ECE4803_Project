@@ -25,14 +25,14 @@ def scatter_plot_all(data, data_labels, show_plot):
     ax.set_ylabel('Component 1')
     ax.set_zlabel('Component 2')
 
-    plt.savefig('../figures/scatterplot.png')
+    plt.savefig('../results/figures/scatterplot.png')
 
     if show_plot:
         plt.show()
 
     return
 
-def kde_map_all(data, data_labels, show_plot):
+def kde_map_all(data, data_labels, show_plot): ## Need to Fix Labels
 
     data_coc = np.concatenate((data, data_labels), axis = 1)
     dataframe = pd.DataFrame(data_coc, columns=["Component 0", "Component 1", "Component 2", "Label"])
@@ -42,11 +42,10 @@ def kde_map_all(data, data_labels, show_plot):
     g.map(sb.kdeplot, "Component 1", color = 'g', legend = True)
     g.map(sb.kdeplot, "Component 2", color = 'b', legend = True)
     
-    plt.savefig('../figures/kde.png')
+    plt.savefig('../results/figures/kde.png')
 
     if show_plot:
         plt.show()
-
 
     return
 
@@ -57,11 +56,14 @@ def pairplot_all(data, data_labels, show_plot):
 
     sb.pairplot(dataframe, hue = "Label")
 
-    plt.savefig('../figures/pairplot.png')    
+    plt.savefig('../results/figures/pairplot.png')    
     
     if show_plot:
         plt.show()
 
+    return
+
+def heatmap(): ## ASK PROF
 
     return
 

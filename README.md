@@ -40,12 +40,12 @@ Matplotlib
 
   1. KNN
   2. Decision Tree
-  2. GMM (GausianNaiveBayes?)
-  4. CNN
+  3. GMM (GausianNaiveBayes?)
+  4. CNN ## TODO
 
 ## Performance Metrics
 
   1. Accuracy
-  2. AUROC Curve
-  3. Precision, Recall, and F1
+  2. AUROC Curve ## TODO
+  3. Precision, Recall, and F1 ## TODO
 
