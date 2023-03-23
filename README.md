@@ -13,24 +13,39 @@ Run the following commands to clone the repository
 git clone https://github.com/gbotkin3/ECE8803_Final_Project.git
 ```
 
-Add the PRIME_FULL folder from an unzipped OLIVES.zip to ./data_files
+Add the PRIME_FULL folder from an unzipped OLIVES.zip and PRIME.zip to ./data_files
 
-## Visualization
+## Required Dependencies
+
+The following packages are required to run.
+
+```
+Numpy
+PyTorch
+Panda
+PIL
+SkLearn
+Seaborn
+Matplotlib
+```
+
+## Visualization Methods
 
   1. Scatter Map
+  2. KDE Plot
   2. Pair Plot
   3. Heat Map
 
-## Methodologies
+## Models
 
   1. KNN
   2. Decision Tree
-  2. GMM
+  2. GMM (GausianNaiveBayes?)
   4. CNN
 
 ## Performance Metrics
 
   1. Accuracy
   2. AUROC Curve
-  3. Precesions / Recall / F1
+  3. Precision, Recall, and F1
 
