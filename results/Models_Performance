@@ -1,6 +1,6 @@
 KNN
-Accuracy: 0.46
-Decision Tree
 Accuracy: 0.5
+Decision Tree
+Accuracy: 0.468
 GMM
-Accuracy: 0.524
+Accuracy: 0.548
