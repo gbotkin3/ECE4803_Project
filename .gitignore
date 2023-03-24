@@ -1,6 +1,10 @@
 #Added Ignores
-OLIVES
+OLIVES/
 OLIVES.zip
+Prime_FULL.zip
+Prime_Full/
+data_files/
+
 ##Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
