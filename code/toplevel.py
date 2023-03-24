@@ -5,18 +5,16 @@ import models as mod        ## Contains Methods for Training and Testing Models 
 import performance as per   ## Contains Methods for Reporting Model Performance
 
 import random
+from sklearn.decomposition import PCA
 
 import torch
 from torch.utils.data import Dataset
-from torch.utils.data import SequentialSampler
 from torchvision import transforms
 
 import numpy as np
 import pandas as pd
 
 from PIL import Image
-
-from sklearn.decomposition import PCA
 
 import argparse
 import os
@@ -118,16 +116,15 @@ trainset_labels = np.zeros((train_batch_size, 1))
 
 j = 0
 for i in random.sample(range(0, len(trainset)), train_batch_size):
-    
+
     trainset_data[j] = trainset[i][0][0]
     trainset_labels[j] = trainset[i][1]
 
     j += 1
 
-    if (j % (train_batch_size * 0.05) == 0):
-        print(j / train_batch_size * 100, "%")
+    if (j % int(train_batch_size * 0.01) == 0):
+        print(int(j / train_batch_size * 100), "%")
 
-print("100 %")
 print("Trainset Sampled \n")
 
 # Create a random dataset of just the test data values without labels
@@ -148,10 +145,9 @@ for i in random.sample(range(0, len(testset)), test_batch_size):
     
     j += 1
 
-    if (j % (test_batch_size * 0.05) == 0):
-        print(j / test_batch_size * 100, "%")
+    if (j % int(test_batch_size * 0.01) == 0):
+        print(int(j / test_batch_size * 100), "%")
 
-print("100 %")
 print("Testset Sampled \n")
 
 # Visualize  the Data

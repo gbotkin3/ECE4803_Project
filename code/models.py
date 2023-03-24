@@ -4,7 +4,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.mixture import GaussianMixture
 from sklearn.naive_bayes import GaussianNB
 
-
 def KNN(traindata, trainlabels, testdata):
 
     neigh = KNeighborsClassifier(n_neighbors=3).fit(traindata, trainlabels.reshape(-1))
@@ -29,4 +28,3 @@ def CNN():  ## TODO
     predictions = 0
 
     return predictions
-
