@@ -6,13 +6,13 @@ from sklearn.naive_bayes import GaussianNB
 
 def KNN(traindata, trainlabels, testdata):
 
-    neigh = KNeighborsClassifier(n_neighbors=3).fit(traindata, trainlabels.reshape(-1))
+    neigh = KNeighborsClassifier(n_neighbors=50).fit(traindata, trainlabels.reshape(-1))
 
     return neigh.predict(testdata)
 
 def Decision_Tree(traindata, trainlabels, testdata):
 
-    clf = DecisionTreeClassifier(max_leaf_nodes=3, random_state=0).fit(traindata, trainlabels.reshape(-1))
+    clf = DecisionTreeClassifier(min_weight_fraction_leaf = 0.1, random_state=0).fit(traindata, trainlabels.reshape(-1))
 
     return clf.predict(testdata)
 
