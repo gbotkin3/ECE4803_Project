@@ -1,10 +1,12 @@
 # Methods for Reporting Model Performance
 
+from sklearn.metrics import accuracy_score
+
 def check_performance(model_name, predictions, labels):
 
     print(model_name + 's Performance')
 
-    accuracy_results = accuracy(predictions, labels)
+    accuracy_results = accuracy_score(labels, predictions)
 
     print("Accuracy: ", accuracy_results, "\n")
 
@@ -16,17 +18,6 @@ def check_performance(model_name, predictions, labels):
     results.close()
 
     return
-
-
-def accuracy(predictions, labels):
-
-    truths = 0
-    for i in range(len(predictions)):
-        if predictions[i] == labels[i]:
-            truths += 1
-    accuracy = truths / len(predictions)
-
-    return accuracy
 
 def AUROC(predictions, labels): ## TODO
 

@@ -5,7 +5,9 @@ import models as mod        ## Contains Methods for Training and Testing Models 
 import performance as per   ## Contains Methods for Reporting Model Performance
 
 import random
+from time import sleep
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 import torch
 from torch.utils.data import Dataset
@@ -23,12 +25,12 @@ import copy
 # Important Constants used to control Settings
 
 ## Batch Sizes (use -1 to use all samples)
-train_batch_size = 100
-test_batch_size = 100
+train_batch_size = 500
+test_batch_size = 250
 
 ## Visualization
 
-visualize = True
+visualize = False
 show_plot = True
 
 ## Models
@@ -39,7 +41,6 @@ run_gmm = True
 run_cnn = False
 
 # Create train and test datasets using provide dataloader
-# Used PCA to reduce image features from 224*224 (50176) to 3 for visualization and training purposes
 
 LABELS_Severity = {35: 0,
                    43: 0,
@@ -52,7 +53,6 @@ LABELS_Severity = {35: 0,
 
 mean = (.1706)
 std = (.2112)
-normalize = transforms.Normalize(mean=mean, std=std)
     
 class OCTDataset(Dataset):
     def __init__(self, args, subset='train', transform=None,):
@@ -78,14 +78,11 @@ class OCTDataset(Dataset):
         img, target = Image.open(self.root+self.path_list[index]).convert("L"), self._labels[index]
         img = np.array(img)
 
-        # Normalize Image Features
-
+        # Rescale img pixels to 0 - 1
         img = img / 255
+        # Reshape image in to 1xP (P = # of Pixels)
+        img = img.reshape(1, -1)
 
-        # Run Image through PCA algorithm to reduce features to 3
-        pca = PCA(n_components=3)
-        pca.fit(img) 
-        img = pca.singular_values_.reshape(1, -1)
 
         return img, target
 
@@ -104,7 +101,7 @@ if __name__ == '__main__':
     trainset = OCTDataset(args, 'train', transform=None)
     testset = OCTDataset(args, 'test', transform=None)
 
-# Create a random dataset of just the train data values without labels
+## Create a random dataset of just the train data values without labels
 
 print("Sampling Trainset:")
 
@@ -122,12 +119,12 @@ for i in random.sample(range(0, len(trainset)), train_batch_size):
 
     j += 1
 
-    if (j % int(train_batch_size * 0.01) == 0):
+    if (j % int(train_batch_size * 0.1) == 0):
         print(int(j / train_batch_size * 100), "%")
 
 print("Trainset Sampled \n")
 
-# Create a random dataset of just the test data values without labels
+## Create a random dataset of just the test data values without labels
 
 print("Sampling Testset:")
 
@@ -145,10 +142,22 @@ for i in random.sample(range(0, len(testset)), test_batch_size):
     
     j += 1
 
-    if (j % int(test_batch_size * 0.01) == 0):
+    if (j % int(test_batch_size * 0.1) == 0):
         print(int(j / test_batch_size * 100), "%")
 
 print("Testset Sampled \n")
+
+## Normalize and Standardize Images
+
+scaler = StandardScaler()
+trainset_data = scaler.fit_transform(trainset_data) 
+testset_data = scaler.transform(testset_data) 
+
+## Run Training and Test data through the PCA algorithm
+
+pca = PCA(n_components=3)
+trainset_data = pca.fit_transform(trainset_data) 
+testset_data = pca.transform(testset_data) 
 
 # Visualize  the Data
 
@@ -190,6 +199,5 @@ if run_cnn:
     per.check_performance("CNN", predictions, testset_labels)
 else:
     print("CNN Disabled")
-
 
 print("Models Ran \n")
