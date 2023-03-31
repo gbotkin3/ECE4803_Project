@@ -25,8 +25,8 @@ import copy
 # Important Constants used to control Settings
 
 ## Batch Sizes (use -1 to use all samples)
-train_batch_size = 500
-test_batch_size = 250
+train_batch_size = 10000
+test_batch_size = 5000
 
 ## Visualization
 
@@ -124,6 +124,16 @@ for i in random.sample(range(0, len(trainset)), train_batch_size):
 
 print("Trainset Sampled \n")
 
+## Normalize and Standardize Training Dataset
+
+scaler = StandardScaler()
+trainset_data = scaler.fit_transform(trainset_data) 
+
+## Run Training through the PCA algorithm
+
+pca = PCA(n_components=3)
+trainset_data = pca.fit_transform(trainset_data) 
+
 ## Create a random dataset of just the test data values without labels
 
 print("Sampling Testset:")
@@ -147,16 +157,11 @@ for i in random.sample(range(0, len(testset)), test_batch_size):
 
 print("Testset Sampled \n")
 
-## Normalize and Standardize Images
 
-scaler = StandardScaler()
-trainset_data = scaler.fit_transform(trainset_data) 
+## Normalize and Standardize Training Dataset
 testset_data = scaler.transform(testset_data) 
 
-## Run Training and Test data through the PCA algorithm
-
-pca = PCA(n_components=3)
-trainset_data = pca.fit_transform(trainset_data) 
+## Run Training through the PCA algorithm
 testset_data = pca.transform(testset_data) 
 
 # Visualize  the Data
