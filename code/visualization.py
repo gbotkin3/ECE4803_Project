@@ -38,9 +38,11 @@ def kde_map_all(data, data_labels, show_plot): ## Need to Fix Labels
     dataframe = pd.DataFrame(data_coc, columns=["Component 0", "Component 1", "Component 2", "Label"])
 
     g = sb.FacetGrid(dataframe, col = "Label")
-    g.map(sb.kdeplot, "Component 0", color = 'r', legend = True)
-    g.map(sb.kdeplot, "Component 1", color = 'g', legend = True)
-    g.map(sb.kdeplot, "Component 2", color = 'b', legend = True)
+    g.map_dataframe(sb.kdeplot, x = "Component 0", color = 'r')
+    g.map_dataframe(sb.kdeplot, x = "Component 1", color = 'g')
+    g.map_dataframe(sb.kdeplot, x = "Component 2", color = 'b')
+    g.set_xlabels("Component Values")
+    
     
     plt.savefig('../results/figures/kde.png')
 

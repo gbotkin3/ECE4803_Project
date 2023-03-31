@@ -6,7 +6,7 @@ from sklearn.naive_bayes import GaussianNB
 
 def KNN(traindata, trainlabels, testdata):
 
-    neigh = KNeighborsClassifier(n_neighbors=50).fit(traindata, trainlabels.reshape(-1))
+    neigh = KNeighborsClassifier(n_neighbors=1).fit(traindata, trainlabels.reshape(-1))
 
     return neigh.predict(testdata)
 
