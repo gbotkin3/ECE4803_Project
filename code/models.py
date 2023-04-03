@@ -6,7 +6,7 @@ from sklearn.naive_bayes import GaussianNB
 
 def KNN(traindata, trainlabels, testdata):
 
-    neigh = KNeighborsClassifier(n_neighbors=1).fit(traindata, trainlabels.reshape(-1))
+    neigh = KNeighborsClassifier(n_neighbors=50).fit(traindata, trainlabels.reshape(-1))
 
     return neigh.predict(testdata)
 
@@ -18,7 +18,6 @@ def Decision_Tree(traindata, trainlabels, testdata):
 
 def GMM(traindata, trainlabels, testdata):
 
-    #gm = GaussianMixture(n_components=3, random_state=1337).fit(traindata)
     gm = GaussianNB().fit(traindata, trainlabels.reshape(-1))
 
     return gm.predict(testdata)
