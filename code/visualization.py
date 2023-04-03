@@ -32,7 +32,7 @@ def scatter_plot_all(data, data_labels, show_plot):
 
     return
 
-def kde_map_all(data, data_labels, show_plot): ## Need to Fix Labels
+def kde_map_all(data, data_labels, show_plot): 
 
     data_coc = np.concatenate((data, data_labels), axis = 1)
     dataframe = pd.DataFrame(data_coc, columns=["Component 0", "Component 1", "Component 2", "Label"])

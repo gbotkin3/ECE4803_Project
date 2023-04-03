@@ -1,7 +1,6 @@
 # Models
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.mixture import GaussianMixture
 from sklearn.naive_bayes import GaussianNB
 
 def KNN(traindata, trainlabels, testdata):

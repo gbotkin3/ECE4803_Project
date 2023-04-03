@@ -9,7 +9,6 @@ from time import sleep
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
@@ -22,15 +21,15 @@ import argparse
 import os
 import copy
 
-# Important Constants used to control Settings
+# Important macros to control settings
 
 ## Batch Sizes (use -1 to use all samples)
-train_batch_size = 1000
+train_batch_size = 3000
 test_batch_size = 1000
 
 ## Visualization
 
-visualize = False
+visualize = True
 show_plot = True
 
 show_scatterplot = True
@@ -93,7 +92,6 @@ class OCTDataset_Numpy(Dataset):
         img = img / 255
         # Reshape image in to 1xP (P = # of Pixels)
         img = img.reshape(1, -1)
-
 
         return img, target
 
@@ -186,13 +184,13 @@ testset_labels = testset_labels.reshape((-1, 1))
 
 print("Testset Sampled \n")
 
-## Normalize and Standardize Training Dataset
+## Normalize and Standardize Test Dataset
 testset_data = scaler.transform(testset_data) 
 
-## Run Training through the PCA algorithm
+## Run Test Data through the PCA algorithm
 testset_data = pca.transform(testset_data) 
 
-# Visualize  the Data
+# Visualize the Data
 
 if visualize:
     print("Visualizing Data")
