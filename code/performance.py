@@ -1,12 +1,12 @@
 # Methods for Reporting Model Performance
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 
 def check_performance(model_name, predictions, labels):
 
     print(model_name + 's Performance')
 
-    accuracy_results = accuracy_score(labels, predictions)
+    accuracy_results = balanced_accuracy_score(labels, predictions)
 
     print("Accuracy: ", accuracy_results, "\n")
 
