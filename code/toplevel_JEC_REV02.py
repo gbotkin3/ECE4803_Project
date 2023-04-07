@@ -1,4 +1,5 @@
 # Import Python Files Containing Methods
+###This is the very first program version that has a running CNN model###
 
 import visualization as vis ## Contains Methods for Visulizing Data
 import models as mod        ## Contains Methods for Training and Testing Models on Provided Train and Test Datasets
@@ -68,6 +69,7 @@ transform = transforms.Compose([
     normalize,
 ])
 
+#Transform for resizing images. It is used by the CNN
 hor_img_res = 202
 vert_img_res = 202
 resized_img_len=hor_img_res*vert_img_res
@@ -209,9 +211,10 @@ for i in (range(0, 5000)):
     img_current_arr = np.ndarray.flatten(np.array(img_current))
     trainset_tensor_data_array[i:i+1] = img_current_arr
 
-print("Trainset data shape", trainset_tensor_data_array.shape)
 X = trainset_tensor_data_array
 y = trainset_tensor._labels
+print("Full Trainset data shape:", X.shape, "Trainset data type:",type(X))
+print("Full Trainset labels shape:", y.shape, "Trainset labels type:",type(y))
 
 # create train test splits
 num_train_cnn = 500
@@ -220,6 +223,8 @@ num_train_cnn = 500
 X_train = X[0:num_train_cnn,:]
 y_train =y[0:num_train_cnn]
 
+print("Trainset data shape 'X_train':", X_train.shape, "Trainset data type 'X_train':",type(X_train))
+print("Trainset labels shape 'y_train':", y_train.shape, "Trainset labels type 'y_train':",type(y_train))
 
 class OCTData(Dataset):
     def __init__(self, X, y):
@@ -242,6 +247,20 @@ train_batch_size_cnn = 100
 train_dataset_cnn = OCTData(X_train, y_train)
 trainloader_cnn = DataLoader(train_dataset_cnn, batch_size=train_batch_size_cnn, shuffle=True)
 
+print("\nTRAIN DATASET")
+print("Train Dataset Type (data):", type(train_dataset_cnn.X))
+print("Train Dataset Shape (data):", train_dataset_cnn.X.shape)
+#print("Get Item Method Test (data): \n", train_dataset.X[0], "\n")
+
+print("Train Dataset Type (labels):", type(train_dataset_cnn.y))
+print("Train Dataset Shape (labels):", train_dataset_cnn.y.shape)
+#print("Get Item Method Test (labels):", train_dataset.y[0], "\n")
+
+print("\nTRAINLOADER")
+print("Train Dataset Loader Type:", type(trainloader_cnn))
+print("Train Dataset trainloader length:", len(trainloader_cnn))
+#print("Get Item Method Test (labels):", train_dataset.y[0], "\n")
+
 
 class OCTCNN(torch.nn.Module):
     def __init__(self):
@@ -255,9 +274,15 @@ class OCTCNN(torch.nn.Module):
 
     def forward(self, x):
         batch_size = x.shape[0]
-        a = F.max_pool2d(F.relu(self.conv1(x)),(4,4))
-        b = F.max_pool2d(F.relu(self.conv2(a)),(11,11))
-        c = b.view(-1, 16*6*6)
+        #print("\nBatch Size:", batch_size)
+        #print("x.shape:", x.shape)
+        a1 = F.relu(self.conv1(x))
+        #print("a1.shape:", a1.shape)
+        a2 = F.max_pool2d(a1, (4, 4))
+        #print("a2.shape:", a2.shape)
+        b = F.max_pool2d(F.relu(self.conv2(a2)),(10,10))
+        #print("b.shape:", b.shape)
+        c = b.view(-1, 16*5*5)
         #c = x.view(-1, self.num_flat_features(b))
         d = F.relu(self.fc1(c))
         e = F.relu(self.fc2(d))
@@ -274,7 +299,7 @@ class OCTCNN(torch.nn.Module):
 
 
 lr = 1e-3
-epochs = 50
+epochs = 100
 net = OCTCNN() # initliaze the network
 
 loss_function = nn.CrossEntropyLoss()

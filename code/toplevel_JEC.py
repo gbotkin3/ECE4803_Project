@@ -67,8 +67,8 @@ transform = transforms.Compose([
     normalize,
 ])
 
-hor_img_res = 200
-vert_img_res = 200
+hor_img_res = 496
+vert_img_res = 496
 resized_img_len=hor_img_res*vert_img_res
 transform_img = transforms.Compose([
     transforms.Resize(size=(hor_img_res,vert_img_res))
