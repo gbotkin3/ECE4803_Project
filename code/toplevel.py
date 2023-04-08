@@ -4,8 +4,6 @@ import visualization as vis ## Contains Methods for Visulizing Data
 import models as mod        ## Contains Methods for Training and Testing Models on Provided Train and Test Datasets
 import performance as per   ## Contains Methods for Reporting Model Performance
 
-import random
-from time import sleep
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
@@ -24,13 +22,16 @@ import copy
 # Important macros to control settings
 
 ## Batch Sizes (use -1 to use all samples)
-train_batch_size = 3000
-test_batch_size = 1000
+train_batch_size = -1
+test_batch_size = -1
+
+train_batch_size_tensor = 250
+test_batch_size_tensor =  250
 
 ## Visualization
 
-visualize = True
-show_plot = True
+visualize = False
+show_plot = False
 
 show_scatterplot = True
 show_kde = True
@@ -38,12 +39,14 @@ show_pairplot = True
 
 ## Models
 
-run_knn = True
-run_decision_tree = True
-run_gmm = True
-run_cnn = False
+run_knn = False
+run_decision_tree = False
+run_gnb = False
 
-# Create train and test datasets using provide dataloader
+run_cnn = True
+train_cnn = True
+
+# Create train and test datasets using provided dataloader
 
 LABELS_Severity = {35: 0,
                    43: 0,
@@ -59,7 +62,8 @@ std = (.2112)
 normalize = transforms.Normalize(mean=mean, std=std)
     
 transform = transforms.Compose([
-    transforms.Resize(size=(224,224)),
+    #transforms.Resize(size=(202,202)),
+    transforms.CenterCrop(size = (202, 202)),
     transforms.ToTensor(),
     normalize,
 ])
@@ -86,12 +90,20 @@ class OCTDataset_Numpy(Dataset):
 
         # Retrieve Img and Label from CSV and Data Files
         img, target = Image.open(self.root+self.path_list[index]).convert("L"), self._labels[index]
+
+        #img = transforms.Resize(size = (50, 50)).forward(img)
+        img = transforms.CenterCrop(size = (202, 202)).forward(img)
+        
         img = np.array(img)
+        
+        # Reshape image in to 1xP (P = # of Pixels)
+        img = img.reshape(1, -1)
 
         # Rescale img pixels to 0 - 1
         img = img / 255
-        # Reshape image in to 1xP (P = # of Pixels)
-        img = img.reshape(1, -1)
+        
+        # Normalize Img Pixels
+        img = (img - mean) / std
 
         return img, target
 
@@ -141,127 +153,122 @@ if __name__ == '__main__':
     trainset_tensor = OCTDataset_Tensor(args, 'train', transform=transform)
     testset_tensor = OCTDataset_Tensor(args, 'test', transform=transform)
 
+print("")
+
 if train_batch_size == -1:
     train_batch_size = len(trainset)
 
 if test_batch_size == -1:
     test_batch_size = len(testset)
 
-trainloader = DataLoader(trainset, batch_size=train_batch_size)
-testloader = DataLoader(testset, batch_size=test_batch_size)
+if train_batch_size_tensor == -1:
+    train_batch_size_tensor = len(trainset_tensor)
+
+if test_batch_size_tensor == -1:
+    test_batch_size_tensor = len(testset_tensor)
+
+## Create Dataloaders
+
+print("Creating Dataloaders")
+
+if run_knn or run_decision_tree or run_gnb:
+    trainloader = DataLoader(trainset, batch_size=train_batch_size)
+    testloader = DataLoader(testset, batch_size=test_batch_size)
+
+if run_cnn:
+
+    trainloader_tensor = DataLoader(trainset_tensor, batch_size=train_batch_size_tensor, num_workers=6)
+    testloader_tensor = DataLoader(testset_tensor, batch_size=test_batch_size_tensor, num_workers=6)
+
+print("Dataloaders Created\n")
 
 ## Create a random dataset of just the train data values without labels
 
-print("\n Sampling Trainset:")
+if run_knn or run_decision_tree or run_gnb:
+    print("Sampling Trainset")
 
-trainset_data = next(iter(trainloader))[0].numpy()
-trainset_data = trainset_data.reshape(trainset_data.shape[0], trainset_data.shape[2])
+    trainset_data = next(iter(trainloader))[0].numpy()
+    trainset_data = trainset_data.reshape(trainset_data.shape[0], trainset_data.shape[2])
 
-trainset_labels = next(iter(trainloader))[1].numpy()
-trainset_labels = trainset_labels.reshape((-1, 1))
+    trainset_labels = next(iter(trainloader))[1].numpy()
+    trainset_labels = trainset_labels.reshape((-1, 1))
 
-print("Trainset Sampled \n")
+    print("Trainset Sampled \n")
 
-## Normalize and Standardize Training Dataset
+    ## Normalize and Standardize Training Dataset
 
-scaler = StandardScaler()
-trainset_data = scaler.fit_transform(trainset_data) 
+    scaler = StandardScaler()
+    trainset_data = scaler.fit_transform(trainset_data) 
 
-## Run Training through the PCA algorithm
+    ## Run Training through the PCA algorithm
 
-pca = PCA(n_components=3)
-trainset_data = pca.fit_transform(trainset_data) 
+    pca = PCA(n_components=3)
+    trainset_data = pca.fit_transform(trainset_data) 
 
-## Create a random dataset of just the test data values without labels
+    ## Create a random dataset of just the test data values without labels
 
-print("Sampling Testset:")
+    print("Sampling Testset")
 
-testset_data = next(iter(testloader))[0].numpy()
-testset_data = testset_data.reshape(testset_data.shape[0], testset_data.shape[2])
+    testset_data = next(iter(testloader))[0].numpy()
+    testset_data = testset_data.reshape(testset_data.shape[0], testset_data.shape[2])
 
-testset_labels = next(iter(testloader))[1].numpy()
-testset_labels = testset_labels.reshape((-1, 1))
+    testset_labels = next(iter(testloader))[1].numpy()
+    testset_labels = testset_labels.reshape((-1, 1))
 
-print("Testset Sampled \n")
+    print("Testset Sampled \n")
 
-## Normalize and Standardize Test Dataset
-testset_data = scaler.transform(testset_data) 
+    ## Normalize and Standardize Test Dataset
+    testset_data = scaler.transform(testset_data) 
 
-## Run Test Data through the PCA algorithm
-testset_data = pca.transform(testset_data) 
-
-##Load Train
-trainset_tensor_data_array = np.zeros((len(trainset_tensor), 249984))
-for i in (range(0, 5000)):
-    img_current = Image.open(trainset_tensor.root+trainset_tensor.path_list[i]).convert("L")
-    img_current_arr = np.ndarray.flatten(np.array(img_current))
-    trainset_tensor_data_array[i:i+1] = img_current_arr
-
-print("Train data shape", trainset_tensor_data_array.shape)
-
-
-#Testing of Array contents
-img_3512 = Image.open(trainset_tensor.root+trainset_tensor.path_list[3512]).convert("L")
-img_current_arr_3512 = np.ndarray.flatten(np.asarray(img_3512))
-img_3512.show()
-
-img_3512_recons=trainset_tensor_data_array[3512,:]
-print("Image 3512 Shape:", img_3512_recons.shape, type(img_3512_recons))
-img_3512_recons_res = img_3512_recons.reshape((496,504))
-print("img_3512_recons_res shape:", img_3512_recons_res.shape)
-img_3512_recons_PIL=Image.fromarray(img_3512_recons_res)
-img_3512_recons_PIL.show()
-
-print("Index of Max at img_current_arr_3512:", np.argmax(img_current_arr_3512))
-print("Value:", img_current_arr_3512[108517])
-print("Index of Max at train_data_arr[3512]:", np.argmax(img_3512_recons))
-print("Value:", img_3512_recons[108517])
-
-
-
+    ## Run Test Data through the PCA algorithm
+    testset_data = pca.transform(testset_data) 
 
 # Visualize the Data
 
-if visualize:
-    print("Visualizing Data")
-    
-    if show_scatterplot:
-        vis.scatter_plot_all(trainset_data, trainset_labels, show_plot)
-    if show_kde:
-        vis.kde_map_all(trainset_data, trainset_labels, show_plot)
-    if show_pairplot:
-        vis.pairplot_all(trainset_data, trainset_labels, show_plot)
+    if visualize:
+        print("Visualizing Data")
+        
+        if show_scatterplot:
+            vis.scatter_plot_all(trainset_data, trainset_labels, show_plot)
+        if show_kde:
+            vis.kde_map_all(trainset_data, trainset_labels, show_plot)
+        if show_pairplot:
+            vis.pairplot_all(trainset_data, trainset_labels, show_plot)
 
-    print("Data Visualized \n")
-else:
-    print("Data Visualization Disabled \n")
+        print("Data Visualized \n")
+    else:
+        print("Data Visualization Disabled \n")
 
 # Models
 
-print("Running Models")
+print("Running Models\n")
 
 if run_knn:
+    print("KNN Enabled\n")
     predictions = mod.KNN(trainset_data, trainset_labels, testset_data)
     per.check_performance("KNN", predictions, testset_labels)
 else:
-    print("KNN Disabled")
+    print("KNN Disabled\n")
 
 if run_decision_tree:
+    print("Decision Tree Enabled\n")
     predictions = mod.Decision_Tree(trainset_data, trainset_labels, testset_data)
     per.check_performance("Decision Tree", predictions, testset_labels)
 else:
-    print("Decision Tree Disabled")
+    print("Decision Tree Disabled\n")
 
-if run_gmm:
-    predictions = mod.GMM(trainset_data, trainset_labels, testset_data)
-    per.check_performance("GMM", predictions, testset_labels)
+if run_gnb:
+    print("gNB Enabled\n")
+    predictions = mod.gNB(trainset_data, trainset_labels, testset_data)
+    per.check_performance("gNB", predictions, testset_labels)
 else:
-    print("GMM Disabled")
+    print("GMM Disabled\n")
 
 if run_cnn:
-    predictions = mod.CNN()
-    per.check_performance("CNN", predictions, testset_labels)
+    print("CNN Enabled\n")
+    predictions, labels = mod.CNN(trainloader_tensor, testloader_tensor, epochs = 100, lr = 1e-3, train = train_cnn)
+    per.check_performance("CNN", predictions, labels)
 else:
-    print("CNN Disabled")
+    print("CNN Disabled\n")
 
-print("Models Ran \n")
+print("Models Ran")

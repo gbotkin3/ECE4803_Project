@@ -65,7 +65,4 @@ def pairplot_all(data, data_labels, show_plot):
 
     return
 
-def heatmap(): ## ASK PROF
-
-    return
 
