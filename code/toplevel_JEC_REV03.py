@@ -1,5 +1,5 @@
 # Import Python Files Containing Methods
-###This is the very first program version that has a running CNN model###
+###This program version has a running CNN model with comments###
 
 import visualization as vis ## Contains Methods for Visulizing Data
 import models as mod        ## Contains Methods for Training and Testing Models on Provided Train and Test Datasets
