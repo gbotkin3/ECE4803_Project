@@ -7,7 +7,8 @@ import performance as per   ## Contains Methods for Reporting Model Performance
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-from torch.utils.data import Dataset, DataLoader, random_split
+import torch
+from torch.utils.data import Dataset, DataLoader, random_split, WeightedRandomSampler
 from torchvision import transforms
 
 import numpy as np
@@ -25,7 +26,7 @@ import copy
 train_batch_size = -1
 test_batch_size = -1
 
-train_batch_size_tensor = 100
+train_batch_size_tensor = 500
 test_batch_size_tensor =  100
 
 ## Visualization
@@ -40,10 +41,10 @@ show_pairplot = True
 ## Models
 
 run_knn = True
-run_decision_tree = False
-run_gnb = False
+run_decision_tree = True
+run_gnb = True
 
-run_cnn = False
+run_cnn = True
 train_cnn = False
 
 # Create train and test datasets using provided dataloader
@@ -62,7 +63,7 @@ std = (.2112)
     
 transform = transforms.Compose([
     #transforms.Resize(size=(100,100)),
-    transforms.CenterCrop(size = (100, 500)),
+    transforms.CenterCrop(size = (100, 496)),
     transforms.ToTensor(),
     transforms.Normalize(mean=mean, std=std),
 ])
@@ -90,8 +91,10 @@ class OCTDataset_Numpy(Dataset):
         # Retrieve Img and Label from CSV and Data Files
         img, target = Image.open(self.root+self.path_list[index]).convert("L"), self._labels[index]
 
+        #print(img.size)
+
         #img = transforms.Resize(size = (100, 500)).forward(img)
-        img = transforms.CenterCrop(size = (100, 500)).forward(img)
+        img = transforms.CenterCrop(size = (100, 496)).forward(img)
         
         img = np.array(img)
         
@@ -178,10 +181,10 @@ if run_cnn:
 
     train, valid = random_split(trainset_tensor, [int(0.8*len(trainset_tensor)), int(0.2*len(trainset_tensor)) + 1])
 
-    trainloader_tensor = DataLoader(train, batch_size=train_batch_size_tensor, num_workers=4, pin_memory=True)
-    validloader_tensor = DataLoader(valid, batch_size=train_batch_size_tensor, num_workers=4, pin_memory=True)
-
-    testloader_tensor = DataLoader(testset_tensor, batch_size=test_batch_size_tensor, num_workers=4, pin_memory=True)
+    trainloader_tensor = DataLoader(train, batch_size=train_batch_size_tensor, num_workers=4, pin_memory=True, shuffle=True)
+    
+    validloader_tensor = DataLoader(valid, batch_size=train_batch_size_tensor, num_workers=4, pin_memory=True, shuffle=False)
+    testloader_tensor = DataLoader(testset_tensor, batch_size=test_batch_size_tensor, num_workers=4, pin_memory=True, shuffle=False)
 
 print("Dataloaders Created\n")
 
@@ -212,6 +215,8 @@ if run_knn or run_decision_tree or run_gnb:
     pca = PCA(n_components=3)
     trainset_data = pca.fit_transform(trainset_data) 
 
+    print("PCA Variance: ", pca.explained_variance_ratio_, "\n")
+
     ## Create a random dataset of just the test data values without labels
 
     print("Sampling Testset")
@@ -229,7 +234,7 @@ if run_knn or run_decision_tree or run_gnb:
     testset_data = scaler.transform(testset_data) 
 
     ## Run Test Data through the PCA algorithm
-    print("Running Testset through PCA with n=3")
+    print("Running Testset through PCA with n=3\n")
     testset_data = pca.transform(testset_data) 
 
 # Visualize the Data
@@ -275,7 +280,7 @@ else:
 
 if run_cnn:
     print("CNN Enabled\n")
-    predictions, labels = mod.CNN(trainloader_tensor, validloader_tensor, testloader_tensor, epochs = 50, lr = 1e-3, train = train_cnn)
+    predictions, labels = mod.CNN(trainloader_tensor, validloader_tensor, testloader_tensor, epochs = 1000, lr = 1e-3, train = train_cnn)
     per.check_performance("CNN", predictions, labels)
 else:
     print("CNN Disabled\n")

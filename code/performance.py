@@ -6,14 +6,14 @@ def check_performance(model_name, predictions, labels):
 
     print(model_name + 's Performance')
 
-    accuracy_results = accuracy_score(labels, predictions)
+    #accuracy_results = accuracy_score(labels, predictions)
     balanced_accuracy_results = balanced_accuracy_score(labels, predictions)
 
-    precision = precision_score(labels, predictions, average = 'weighted')
+    precision = precision_score(labels, predictions, average = 'weighted', zero_division = 1)
     recall = recall_score(labels, predictions, average = 'weighted')
     F1 = f1_score(labels, predictions,average = 'weighted')
 
-    print("Accuracy: ", accuracy_results, "")
+    #print("Accuracy: ", accuracy_results, "")
     print("Balanced Accuracy Results: ", balanced_accuracy_results, "")
     print("Precision: ", precision, "")
     print("Recall: ", recall, "")
@@ -22,7 +22,7 @@ def check_performance(model_name, predictions, labels):
     results = open("../results/Models_Performance", "a")
 
     results.write(model_name + "\n")
-    results.write("Accuracy: " + str(accuracy_results) + "\n")
+    #results.write("Accuracy: " + str(accuracy_results) + "\n")
     results.write("Balanced Accuracy Results: " + str(balanced_accuracy_results) + "\n")
     results.write("Precision: " + str(precision) + "\n")
     results.write("Recall: " + str(recall) + "\n")

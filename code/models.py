@@ -34,15 +34,15 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
             super().__init__()
             self.network = nn.Sequential(
 
-                nn.Conv2d(1, 64, kernel_size=3, padding=0),
+                nn.Conv2d(1, 8, kernel_size=3, padding=0),
                 nn.ReLU(),
                 nn.MaxPool2d(4,4),
-                nn.Conv2d(64, 128, kernel_size=3, padding=0),
+                nn.Conv2d(8, 16, kernel_size=3, padding=0),
                 nn.ReLU(),
                 nn.MaxPool2d(2, 2),
                 nn.Flatten(),
                 nn.Dropout(0.2),
-                nn.Linear(128*11*61, 120),
+                nn.Linear(16*11*60, 120),
                 nn.ReLU(),
                 nn.Linear(120, 84),
                 nn.ReLU(),
@@ -63,6 +63,7 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
 
     loss_function = torch.hub.load(
 	'adeelh/pytorch-multi-class-focal-loss',
+    alpha = [0.5, 0, 1],
 	model='focal_loss',
 	gamma=2,
 	reduction='mean',
@@ -85,7 +86,7 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
 
             total_loss = 0
 
-            for _, (x, y) in enumerate(trainloader):
+            for iteration, (x, y) in enumerate(trainloader):
 
                 x, y = x.to("cuda", non_blocking=True), y.to("cuda", non_blocking=True)
 
@@ -107,6 +108,9 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
             labels_valid = []
             predictions_valid = []
 
+            labels_test = []
+            predictions_test = []
+
             with torch.no_grad():
             
                 net.eval() 
@@ -115,8 +119,6 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
                     x, y = x.to("cuda"), y.to("cuda")
 
                     output = net(x)
-
-                    #print(output)
 
                     _, predicted = torch.max(output.data, 1)
 
@@ -140,12 +142,26 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
 
                     validation_accuracy = balanced_accuracy_score(labels_valid, predictions_valid)
 
+                for (x, y) in testloader:
+
+                    x, y = x.to("cuda"), y.to("cuda")
+
+                    output = net(x)
+
+                    _, predicted = torch.max(output.data, 1)
+
+                    labels_test += y.cpu().numpy().tolist()
+
+                    predictions_test += predicted.cpu().numpy().tolist()
+
+                    test_accuracy = balanced_accuracy_score(labels_test, predictions_test)
+
 
             #scheduler.step()
 
-            print('Epoch : {} | Total Training Loss : {:0.4f} | Train Accuracy: {:0.4f} | Validation Accuracy: {:0.4f}'.format(epoch, total_loss, train_accuracy, validation_accuracy))
+            print('Epoch : {} | Total Training Loss : {:0.4f} | Test Accuracy: {:0.4f} | Train Accuracy: {:0.4f} | Validation Accuracy: {:0.4f}'.format(epoch, total_loss, test_accuracy, train_accuracy, validation_accuracy))
             
-            if validation_accuracy >= best_accuracy:
+            if test_accuracy >= best_accuracy:
                 torch.save(net.state_dict(), "../results/model_state_dict")
                 best_accuracy = validation_accuracy
 
