@@ -7,6 +7,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from sklearn.metrics import balanced_accuracy_score
+
 def KNN(traindata, trainlabels, testdata):
 
     neigh = KNeighborsClassifier(n_neighbors=50).fit(traindata, trainlabels.reshape(-1))
@@ -25,54 +27,67 @@ def gNB(traindata, trainlabels, testdata):
 
     return gm.predict(testdata)
 
-def CNN(trainloader, testloader, epochs = 100, lr = 1e-3, train = False): 
+def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = False): 
 
     class OCTCNN(torch.nn.Module):
         def __init__(self):
-            super(OCTCNN, self).__init__()
-            self.conv1 = nn.Conv2d(1, 8, kernel_size=3, padding=0)
-            self.conv2 = nn.Conv2d(8, 16, kernel_size=3, padding=1)
-            self.fc1 = nn.Linear(16*5*5, 120)
-            self.fc2 = nn.Linear(120, 84)
-            self.fc3 = nn.Linear(84, 3)
+            super().__init__()
+            self.network = nn.Sequential(
 
+                nn.Conv2d(1, 64, kernel_size=3, padding=0),
+                nn.ReLU(),
+                nn.MaxPool2d(4,4),
+                nn.Conv2d(64, 128, kernel_size=3, padding=0),
+                nn.ReLU(),
+                nn.MaxPool2d(2, 2),
+                nn.Flatten(),
+                nn.Dropout(0.2),
+                nn.Linear(128*11*61, 120),
+                nn.ReLU(),
+                nn.Linear(120, 84),
+                nn.ReLU(),
+                nn.Linear(84, 3),
+                nn.ReLU())
+        
         def forward(self, x):
 
-            #print(x.shape)
-            layer_in_1 = F.relu(self.conv1(x))
-            #print(layer_in_1.shape)
-            layer_1_2 = F.max_pool2d(layer_in_1, (4, 4))
-            #print(layer_1_2.shape)
-            layer_2_3 = F.max_pool2d(F.relu(self.conv2(layer_1_2)), (10,10))
-            #print(layer_2_3.shape)
-            layer_3_4 = layer_2_3.view(-1, 16*5*5)
-            #print(layer_3_4.shape)
-            layer_4_6 = F.relu(self.fc1(layer_3_4))
-            #print(layer_4_6.shape)
-            layer_6_7 = F.relu(self.fc2(layer_4_6))
-            #print(layer_6_7.shape)
-            layer_7_out = self.fc3(layer_6_7)
-            #print(layer_7_out.shape)
-            return layer_7_out
+            # for layer in self.network:
+            #     x = layer(x)
+            #     print(x.size())
+
+            # return x
+
+            return self.network(x)
 
     net = OCTCNN().to("cuda") ## Init the network
 
-    loss_function = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(net.parameters(), lr=lr)  ## Using Adam Optimizer
+    loss_function = torch.hub.load(
+	'adeelh/pytorch-multi-class-focal-loss',
+	model='focal_loss',
+	gamma=2,
+	reduction='mean',
+	device='cuda',
+	dtype=torch.float32,
+	force_reload=False)
+
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay = 0.001)  ## Using AdamW Optimizer
+    #scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(trainloader), epochs=epochs)
 
     if train == True:
 
         print("Training CNN")
 
-        net.train()  # training mode
+        best_accuracy = 0.0
 
         for epoch in range(epochs):
 
+            net.train()  # training mode
+
             total_loss = 0
 
-            for iteration, (x, y) in enumerate(trainloader):
+            for _, (x, y) in enumerate(trainloader):
 
-                x, y = x.to("cuda"), y.to("cuda")
+                x, y = x.to("cuda", non_blocking=True), y.to("cuda", non_blocking=True)
 
                 optimizer.zero_grad(set_to_none=True)
 
@@ -86,9 +101,56 @@ def CNN(trainloader, testloader, epochs = 100, lr = 1e-3, train = False):
 
                 #print("Epoch: ", epoch, " Iteration: ", iteration)
 
-            print('Epoch : {} | Total Training Loss : {:0.4f}'.format(epoch, total_loss))
+            labels_train = []
+            predictions_train = []
 
-        torch.save(net.state_dict(), "../results/model_state_dict")
+            labels_valid = []
+            predictions_valid = []
+
+            with torch.no_grad():
+            
+                net.eval() 
+                for (x, y) in trainloader:
+
+                    x, y = x.to("cuda"), y.to("cuda")
+
+                    output = net(x)
+
+                    #print(output)
+
+                    _, predicted = torch.max(output.data, 1)
+
+                    labels_train += y.cpu().numpy().tolist()
+
+                    predictions_train += predicted.cpu().numpy().tolist()
+
+                    train_accuracy = balanced_accuracy_score(labels_train, predictions_train)
+
+                for (x, y) in validloader:
+
+                    x, y = x.to("cuda"), y.to("cuda")
+
+                    output = net(x)
+
+                    _, predicted = torch.max(output.data, 1)
+
+                    labels_valid += y.cpu().numpy().tolist()
+
+                    predictions_valid += predicted.cpu().numpy().tolist()
+
+                    validation_accuracy = balanced_accuracy_score(labels_valid, predictions_valid)
+
+
+            #scheduler.step()
+
+            print('Epoch : {} | Total Training Loss : {:0.4f} | Train Accuracy: {:0.4f} | Validation Accuracy: {:0.4f}'.format(epoch, total_loss, train_accuracy, validation_accuracy))
+            
+            if validation_accuracy >= best_accuracy:
+                torch.save(net.state_dict(), "../results/model_state_dict")
+                best_accuracy = validation_accuracy
+
+            #if validation_accuracy > 0.99 or (train_accuracy - validation_accuracy) > 0.05:
+                #break
 
     else:
 
@@ -107,13 +169,15 @@ def CNN(trainloader, testloader, epochs = 100, lr = 1e-3, train = False):
             x, y = x.to("cuda"), y.to("cuda")
 
             output = net(x)
+
+            #print(output)
+
             _, predicted = torch.max(output.data, 1)
 
             labels += y.cpu().numpy().tolist()
 
             predictions += predicted.cpu().numpy().tolist()
 
-        
         #print("Predictions: ", len(predictions), "Actual: ", len(labels))
 
     return predictions, labels

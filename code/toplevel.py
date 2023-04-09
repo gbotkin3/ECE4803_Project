@@ -7,7 +7,7 @@ import performance as per   ## Contains Methods for Reporting Model Performance
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 from torchvision import transforms
 
 import numpy as np
@@ -25,12 +25,12 @@ import copy
 train_batch_size = -1
 test_batch_size = -1
 
-train_batch_size_tensor = 250
-test_batch_size_tensor =  250
+train_batch_size_tensor = 100
+test_batch_size_tensor =  100
 
 ## Visualization
 
-visualize = False
+visualize = True
 show_plot = False
 
 show_scatterplot = True
@@ -39,12 +39,12 @@ show_pairplot = True
 
 ## Models
 
-run_knn = False
+run_knn = True
 run_decision_tree = False
 run_gnb = False
 
-run_cnn = True
-train_cnn = True
+run_cnn = False
+train_cnn = False
 
 # Create train and test datasets using provided dataloader
 
@@ -59,13 +59,12 @@ LABELS_Severity = {35: 0,
 
 mean = (.1706)
 std = (.2112)
-normalize = transforms.Normalize(mean=mean, std=std)
     
 transform = transforms.Compose([
-    #transforms.Resize(size=(202,202)),
-    transforms.CenterCrop(size = (202, 202)),
+    #transforms.Resize(size=(100,100)),
+    transforms.CenterCrop(size = (100, 500)),
     transforms.ToTensor(),
-    normalize,
+    transforms.Normalize(mean=mean, std=std),
 ])
 
 class OCTDataset_Numpy(Dataset):
@@ -91,8 +90,8 @@ class OCTDataset_Numpy(Dataset):
         # Retrieve Img and Label from CSV and Data Files
         img, target = Image.open(self.root+self.path_list[index]).convert("L"), self._labels[index]
 
-        #img = transforms.Resize(size = (50, 50)).forward(img)
-        img = transforms.CenterCrop(size = (202, 202)).forward(img)
+        #img = transforms.Resize(size = (100, 500)).forward(img)
+        img = transforms.CenterCrop(size = (100, 500)).forward(img)
         
         img = np.array(img)
         
@@ -177,8 +176,12 @@ if run_knn or run_decision_tree or run_gnb:
 
 if run_cnn:
 
-    trainloader_tensor = DataLoader(trainset_tensor, batch_size=train_batch_size_tensor, num_workers=6)
-    testloader_tensor = DataLoader(testset_tensor, batch_size=test_batch_size_tensor, num_workers=6)
+    train, valid = random_split(trainset_tensor, [int(0.8*len(trainset_tensor)), int(0.2*len(trainset_tensor)) + 1])
+
+    trainloader_tensor = DataLoader(train, batch_size=train_batch_size_tensor, num_workers=4, pin_memory=True)
+    validloader_tensor = DataLoader(valid, batch_size=train_batch_size_tensor, num_workers=4, pin_memory=True)
+
+    testloader_tensor = DataLoader(testset_tensor, batch_size=test_batch_size_tensor, num_workers=4, pin_memory=True)
 
 print("Dataloaders Created\n")
 
@@ -197,10 +200,14 @@ if run_knn or run_decision_tree or run_gnb:
 
     ## Normalize and Standardize Training Dataset
 
+    print("Scaling Trainset")
+
     scaler = StandardScaler()
     trainset_data = scaler.fit_transform(trainset_data) 
 
     ## Run Training through the PCA algorithm
+
+    print("Running Trainset through PCA with n=3")
 
     pca = PCA(n_components=3)
     trainset_data = pca.fit_transform(trainset_data) 
@@ -218,9 +225,11 @@ if run_knn or run_decision_tree or run_gnb:
     print("Testset Sampled \n")
 
     ## Normalize and Standardize Test Dataset
+    print("Scaling Testset")
     testset_data = scaler.transform(testset_data) 
 
     ## Run Test Data through the PCA algorithm
+    print("Running Testset through PCA with n=3")
     testset_data = pca.transform(testset_data) 
 
 # Visualize the Data
@@ -266,7 +275,7 @@ else:
 
 if run_cnn:
     print("CNN Enabled\n")
-    predictions, labels = mod.CNN(trainloader_tensor, testloader_tensor, epochs = 100, lr = 1e-3, train = train_cnn)
+    predictions, labels = mod.CNN(trainloader_tensor, validloader_tensor, testloader_tensor, epochs = 50, lr = 1e-3, train = train_cnn)
     per.check_performance("CNN", predictions, labels)
 else:
     print("CNN Disabled\n")
