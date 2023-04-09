@@ -7,7 +7,6 @@ import performance as per   ## Contains Methods for Reporting Model Performance
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-import torch
 from torch.utils.data import Dataset, DataLoader, random_split, WeightedRandomSampler
 from torchvision import transforms
 

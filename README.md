@@ -5,6 +5,31 @@ DRSS Severity Classification on OCT images
 
 By looking at the visulization of a set of data, is it possible to predict the performance of models relative to each other for the purpose of enabling reliably choosing the best performing model?
 
+## Repository Setup
+
+- ECE8803_FINAL_PROJECT
+  - code/
+  - data_files/
+   - (Manually Placed) Prime_FULL/
+  - results/
+    - figures/ 
+  - report_figures/
+
+## Required Dependencies
+
+The following packages are required to run the python file.
+
+```
+matplotlib == 3.7.1
+numpy == 1.24.2
+pandas == 1.5.3
+Pillow == 9.5.0
+scikit_learn == 1.2.2
+seaborn == 0.12.2
+torch == 2.0.0
+torchvision == 0.15.1
+```
+
 ## Initial Setup
 
 Run the following commands to clone the repository
@@ -14,20 +39,6 @@ git clone https://github.com/gbotkin3/ECE8803_Final_Project.git
 ```
 
 Add the PRIME_FULL folder from an unzipped OLIVES.zip and PRIME.zip to ./data_files
-
-## Required Dependencies
-
-The following packages are required to run the python file.
-
-```
-Numpy
-PyTorch
-Panda
-PIL
-SkLearn
-Seaborn
-Matplotlib
-```
 
 ## Running
 
