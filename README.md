@@ -10,7 +10,7 @@ By looking at the visulization of a set of data, is it possible to predict the p
 - ECE8803_FINAL_PROJECT
   - code/
   - data_files/
-   - (Manually Placed) Prime_FULL/
+    - (Manually Placed) Prime_FULL/
   - results/
     - figures/ 
   - report_figures/
