@@ -58,7 +58,7 @@ In toplevel.py, various settings can be changed to enable or disable models and 
 
   1. K-Nearest Neighbors
   2. Decision Tree
-  3. Guassian Naive Bayes 
+  3. Gaussian Naive Bayes 
   4. Convolutional Neural Networks
 
 ## Performance Metrics (Stored in ./results)
