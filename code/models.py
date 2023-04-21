@@ -71,7 +71,7 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
 	dtype=torch.float32,
 	force_reload=False)
 
-    optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay = 0.001)  ## Using AdamW Optimizer
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay = 0.001)  ## Using Adam Optimizer
     #scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(trainloader), epochs=epochs)
 
     if train == True:
@@ -108,9 +108,6 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
             labels_valid = []
             predictions_valid = []
 
-            labels_test = []
-            predictions_test = []
-
             with torch.no_grad():
             
                 net.eval() 
@@ -142,31 +139,16 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
 
                     validation_accuracy = balanced_accuracy_score(labels_valid, predictions_valid)
 
-                for (x, y) in testloader:
-
-                    x, y = x.to("cuda"), y.to("cuda")
-
-                    output = net(x)
-
-                    _, predicted = torch.max(output.data, 1)
-
-                    labels_test += y.cpu().numpy().tolist()
-
-                    predictions_test += predicted.cpu().numpy().tolist()
-
-                    test_accuracy = balanced_accuracy_score(labels_test, predictions_test)
-
-
             #scheduler.step()
 
-            print('Epoch : {} | Total Training Loss : {:0.4f} | Test Accuracy: {:0.4f} | Train Accuracy: {:0.4f} | Validation Accuracy: {:0.4f}'.format(epoch, total_loss, test_accuracy, train_accuracy, validation_accuracy))
+            print('Epoch : {} | Total Training Loss : {:0.4f} | Train Accuracy: {:0.4f} | Validation Accuracy: {:0.4f}'.format(epoch, total_loss, train_accuracy, validation_accuracy))
             
-            if test_accuracy >= best_accuracy:
+            if validation_accuracy >= best_accuracy:
                 torch.save(net.state_dict(), "../results/model_state_dict")
                 best_accuracy = validation_accuracy
 
-            #if validation_accuracy > 0.99 or (train_accuracy - validation_accuracy) > 0.05:
-                #break
+            if validation_accuracy > 0.99 or (train_accuracy - validation_accuracy) > 0.05:
+                break
 
     else:
 

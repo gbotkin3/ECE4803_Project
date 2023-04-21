@@ -22,8 +22,12 @@ import copy
 # Important macros to control settings
 
 ## Batch Sizes (use -1 to use all samples)
+
+### KNN / DT / GNB
 train_batch_size = -1
 test_batch_size = -1
+
+### CNN
 
 train_batch_size_tensor = 500
 test_batch_size_tensor =  100
@@ -46,7 +50,7 @@ run_gnb = True
 run_cnn = True
 train_cnn = False
 
-# Create train and test datasets using provided dataloader
+# Create Train and Test datasets
 
 LABELS_Severity = {35: 0,
                    43: 0,

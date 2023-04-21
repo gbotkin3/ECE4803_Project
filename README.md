@@ -1,16 +1,16 @@
 # ECE8803_Final_Project
 DRSS Severity Classification on OCT images
 
-# Abstract
+# Description
 
-By looking at the visulization of a set of data, is it possible to predict the performance of models relative to each other for the purpose of enabling reliably choosing the best performing model?
+By looking at the visulization of a set of data, is it possible to predict the performance of models relative to each other for the purpose of enabling reliably choosing the best performing model for a dataset?
 
-## Repository Setup
+## Repository Layout
 
 - ECE8803_FINAL_PROJECT
   - code/
   - data_files/
-   - (Manually Placed) Prime_FULL/
+    - (Manually Placed) Prime_FULL/
   - results/
     - figures/ 
   - report_figures/
@@ -38,7 +38,7 @@ Run the following commands to clone the repository
 git clone https://github.com/gbotkin3/ECE8803_Final_Project.git
 ```
 
-Add the PRIME_FULL folder from an unzipped OLIVES.zip and PRIME.zip to ./data_files
+Add the PRIME_FULL folder from an unzipped OLIVES.zip and PRIME.zip to ./data_files/
 
 ## Running
 
@@ -58,7 +58,7 @@ In toplevel.py, various settings can be changed to enable or disable models and 
 
   1. K-Nearest Neighbors
   2. Decision Tree
-  3. Guassian Naive Bayes 
+  3. Gaussian Naive Bayes 
   4. Convolutional Neural Networks
 
 ## Performance Metrics (Stored in ./results)
