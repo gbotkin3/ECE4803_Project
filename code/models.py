@@ -71,7 +71,7 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
 	dtype=torch.float32,
 	force_reload=False)
 
-    optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay = 0.001)  ## Using AdamW Optimizer
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr, weight_decay = 0.001)  ## Using Adam Optimizer
     #scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(trainloader), epochs=epochs)
 
     if train == True:
@@ -107,9 +107,6 @@ def CNN(trainloader, validloader, testloader, epochs = 100, lr = 1e-3, train = F
 
             labels_valid = []
             predictions_valid = []
-
-            labels_test = []
-            predictions_test = []
 
             with torch.no_grad():
             
